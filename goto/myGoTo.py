@@ -7,7 +7,8 @@ import json
 configFile = "myGoToConfig.json"
 myCommands = {}
 
-#TODO : how to import a module in a different relative folder?? 
+# TODO : how to import a module in a different relative folder??
+
 
 def readJSONtoDictionary(fp, verbose=False):
     # dictionary object with key as option, and value as command
