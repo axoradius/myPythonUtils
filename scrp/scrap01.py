@@ -1,4 +1,6 @@
-
+"""
+works only for imgdb links
+"""
 import requests
 import os
 from bs4 import BeautifulSoup
@@ -11,6 +13,17 @@ def getHtmlFile(url):
     except requests.exceptions.RequestException as err:
         print("html page does not exist")
         return False
+
+
+def checkDirNew(myPath, verbose=True):
+    if os.path.isdir(myPath):
+        if verbose:
+            print(f"path {myPath} exists already.")
+        return False
+    else:
+        if verbose:
+            print(f"path {myPath} has not been found.")
+        return True
 
 
 def downloadFile(url, destFolder=None, destName=None):
@@ -35,14 +48,15 @@ def fileNameFromUrl(url=None):
     return os.path.basename(url)
 
 
-
 baseUrl = "https://imgdb.net/"
 baseDestinationPath = "/Users/bvds/Downloads/zzPython"
 startRange = 10900
 rangeNbr = 2
 endRange = startRange + rangeNbr
 
-destFolder = baseDestinationPath + str(startRange)
+destFolder = os.path.join(baseDestinationPath, str(startRange))
+if checkDirNew(destFolder):
+    os.mkdir(destFolder)
 
 for i in range(startRange, endRange):
     url = baseUrl + str(i)
