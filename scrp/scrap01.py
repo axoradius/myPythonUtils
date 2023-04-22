@@ -15,7 +15,7 @@ def getHtmlFile(url):
         return False
 
 
-def checkDirNew(myPath, verbose=True):
+def checkDirNew(myPath, verbose=False):
     if os.path.isdir(myPath):
         if verbose:
             print(f"path {myPath} exists already.")
