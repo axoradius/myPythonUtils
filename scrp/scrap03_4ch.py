@@ -16,10 +16,10 @@ def getHtml(url):
         print("error", e.errno)
         return False
 
-srcUrlBase = "https://4chan.org/o"
+srcUrlBase = "https://4chan.org/o/catalog"
 
 if __name__ == '__main__':
     htmlFile = getHtml(srcUrlBase)
     print(htmlFile)
-    open("catalog.html", "wb").write(htmlFile.content)
+    open("catalog2.html", "wb").write(htmlFile.content)
 
