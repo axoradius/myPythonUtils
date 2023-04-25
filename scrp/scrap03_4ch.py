@@ -16,7 +16,7 @@ def getHtml(url):
         print("error", e.errno)
         return False
 
-srcUrlBase = "https://4chan.org/o"
+srcUrlBase = "https://4chan.org/o/catalog"
 
 if __name__ == '__main__':
     htmlFile = getHtml(srcUrlBase)
