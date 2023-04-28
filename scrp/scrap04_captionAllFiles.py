@@ -4,6 +4,11 @@ creates a caption for every image in a folder and writes the output to a file
 
 import os
 import json
+from lavis.models import load_model_and_preprocess
+import torch
+from PIL import Image
+import ssl
+ssl._create_default_https_context = ssl._create_stdlib_context
 
 # set variables
 verbose = False
@@ -12,7 +17,8 @@ scriptName = os.path.basename(__file__).split(".")[0] # basename returns the fil
 configFileName = scriptName + "_cfg.json"
 configFilePath = os.path.join(curDir, configFileName)
 allConfigSettings = []
-
+# method = "caption"
+method = "vqa"
 
 def getAllConfigValues(cfgPath=configFilePath, verbose=False):
     if verbose: print(f"start getAllConfigValues on {cfgPath}")
@@ -79,9 +85,55 @@ if __name__ == "__main__":
         print(f"list of extions to filter on is {listExtensions}")
 
     # create list of files at target location
-    res = listAllFiles(sourcePath, listExtensions,verbose)
-    nbrFound = len(res)
+    images = listAllFiles(sourcePath, listExtensions,verbose)
+    nbrFound = len(images)
+    catalogPath = os.path.join(sourcePath, "catalog.txt")
     print(f"nbr of files with a relevant extension: {nbrFound}")
 
+    if method == "caption":
+        # create caption for each image file
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        # print("... load model and preprocess")
+        model, vis_processors, _ = load_model_and_preprocess(name="blip_caption", model_type="base_coco", is_eval=True, device=device)
+        for img in images:
+            fp = os.path.join(sourcePath, img)
+            if verbose: print(f"... image: {fp}")
+            raw_image = Image.open(fp).convert("RGB")
 
-    # writeToFile(["hello1","hello2"],"/Users/benny.vandesompele/Pictures/catalog.txt")
+            # preprocess the image
+            # vis_processors stores image transforms for "train" and "eval" (validation / testing / inference)
+            if verbose: print("... process image")
+            image = vis_processors["eval"](raw_image).unsqueeze(0).to(device)
+
+            # generate caption
+            if verbose: print("... generate caption")
+            imageCaption = model.generate({"image": image})
+            print(f"{img} : {imageCaption[0]}")
+            writeToFile([img, ",", imageCaption[0]], catalogPath)
+
+    if method == "vqa":
+        print(images)
+        img = input("for which file do you have a question? ")
+        fp = os.path.join(sourcePath, img)
+
+
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        # print("... load model and preprocess")
+        model, vis_processors, txt_processors = load_model_and_preprocess(name="blip_vqa", model_type="vqav2", is_eval=True, device=device)
+        if verbose: print(f"... image: {fp}")
+        raw_image = Image.open(fp).convert("RGB")
+
+        # preprocess the image
+        # vis_processors stores image transforms for "train" and "eval" (validation / testing / inference)
+        if verbose: print("... process image")
+        image = vis_processors["eval"](raw_image).unsqueeze(0).to(device)
+
+        cnt = True
+        while cnt:
+            question = input("what is your question? ")
+            if question == "exit":
+                cnt = False
+            else:
+                question = txt_processors["eval"](question)
+                answer = model.predict_answers(samples={"image": image, "text_input": question}, inference_method="generate")
+                print(f"answer: {answer}")
