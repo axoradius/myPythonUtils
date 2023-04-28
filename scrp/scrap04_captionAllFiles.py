@@ -7,11 +7,9 @@ import json
 
 # set variables
 verbose = False
-# identify base path where this file is running from and compose the configFilePath
-curDir = os.getcwd()
-scriptPath = __file__
+curDir = os.getcwd() # identify base path where this file is running from and compose the configFilePath
 scriptName = os.path.basename(__file__).split(".")[0] # basename returns the filename. the split function with separator returns a list with substings. the first is the name without extension
-configFileName = scriptName + "_cfg.json" # TODO: replace with name based upon python file name
+configFileName = scriptName + "_cfg.json"
 configFilePath = os.path.join(curDir, configFileName)
 allConfigSettings = []
 
@@ -36,6 +34,7 @@ def createInitialCfg(cfgFilePath, verbose=False):
         writeToFile(['"listExtensions": ["jpg","jpeg","png"]'], configFilePath)
         writeToFile(['}'],configFilePath)
         if verbose: print(f"configuration file {cfgFilePath} has been created with default values. Please check the values.")
+
 
 def listAllFiles(srcPath, listExtensions=["jpg","jpeg","png"], verbose=False):
     result = []
@@ -62,9 +61,11 @@ def writeToFile(messages=[], filePath=""):
 
 if __name__ == "__main__":
     print(f"::: start :::")
+    # checks if the cfg exists, if not creates a default file
     createInitialCfg(configFilePath)
+
+    # get parameter values from cfg.json
     allConfigSettings = getAllConfigValues(configFilePath)
-    #get parameter values from cfg.json
     sourcePath = allConfigSettings["sourcePath"]
     outputFileName = allConfigSettings["outputFileName"]
     listExtensions = []
@@ -76,7 +77,11 @@ if __name__ == "__main__":
         print(f"sourcePath is {sourcePath}")
         print(f"outputFileName is {outputFileName}")
         print(f"list of extions to filter on is {listExtensions}")
+
+    # create list of files at target location
     res = listAllFiles(sourcePath, listExtensions,verbose)
     nbrFound = len(res)
     print(f"nbr of files with a relevant extension: {nbrFound}")
-    #writeToFile(["hello1","hello2"],"/Users/benny.vandesompele/Pictures/catalog.txt")
+
+
+    # writeToFile(["hello1","hello2"],"/Users/benny.vandesompele/Pictures/catalog.txt")
