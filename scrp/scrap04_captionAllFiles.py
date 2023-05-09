@@ -20,6 +20,7 @@ allConfigSettings = []
 # method = "caption"
 method = "vqa"
 
+
 def getAllConfigValues(cfgPath=configFilePath, verbose=False):
     if verbose: print(f"start getAllConfigValues on {cfgPath}")
     with open(cfgPath) as json_file:
